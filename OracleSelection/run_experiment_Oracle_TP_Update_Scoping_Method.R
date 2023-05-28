@@ -449,8 +449,11 @@ for (change in tp.change) {
                                                     geno.train = rbind(TP.genos.i,geno.temp),                    
                                                     geno.pred = candidate.marker.genos.i))     
             
-            pred.accuracy.temp <- cor(candidate.values.i$geno.values,
-                                   predictions.temp$GEBV) %>%
+            names.pred<-rownames(candidate.values.i$geno.values)
+            names.pred<-names.pred[!(names.pred%in%c(rownames(TP.phenos.i), names.pred[ind.sel]))]
+            
+            pred.accuracy.temp <- cor(candidate.values.i$geno.values[names.pred,],
+                                   predictions.temp$GEBV[names.pred,]) %>%
               as.numeric()
             
             if (pred.accuracy.temp> best.accuracu){
@@ -486,8 +489,11 @@ for (change in tp.change) {
                                                      geno.train = rbind(TP.genos.i[-ind,]),                    
                                                      geno.pred = candidate.marker.genos.i))     
             
-            pred.accuracy.temp <- cor(candidate.values.i$geno.values,
-                                      predictions.temp$GEBV) %>%
+            names.pred<-rownames(candidate.values.i$geno.values)
+            names.pred<-names.pred[!(names.pred%in%c(rownames(TP.phenos.i)[-ind]))]
+            
+            pred.accuracy.temp <- cor(candidate.values.i$geno.values[names.pred,],
+                                      predictions.temp$GEBV[names.pred,]) %>%
               as.numeric()
             
             if (pred.accuracy.temp>best.accuracu){
@@ -518,8 +524,15 @@ for (change in tp.change) {
                                                 geno.pred = candidate.marker.genos.i))
         # Validate the predictions
         # Find the correlation between the GEBVs and the true genotypic value
-        pred.accuracy.i <- cor(candidate.values.i$geno.values,
-                               predictions.out$GEBV) %>%
+         notinTP<-!rownames(candidate.marker.genos.i)%in%rownames(TP.phenos.i)
+         predictions.out <- try(make.predictions(pheno.train = TP.phenos.i,
+                                                geno.train = TP.genos.i,                     
+                                                geno.pred = candidate.marker.genos.i))  
+        
+        
+        
+        pred.accuracy.i <- cor(candidate.values.i$geno.values[notinTP],
+                               predictions.out$GEBV[notinTP]) %>%
           as.numeric()
         
         
